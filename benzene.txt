@@ -1,0 +1,18 @@
+***************************************************************************************
+                   MARS: Molecular Assembling and Representation Suite                 
+                                      Hsuan Hao Hsu                                    
+                                    Chen Hsuan Huang                                   
+                            Shiang Tai Lin (stlin@ntu.edu.tw)                          
+                      Computational Molecular Engineering Laboratory                   
+      Department of Chemical Engineering, National Taiwan University, Taipei, Taiwan   
+                                   Copyright (c) 2019                                  
+                                   All rights Reserved                                 
+***************************************************************************************
+C
+C(-C)
+C(=C)
+C(=C(-C))
+C(=C(-C(=C)))
+C(=C(-C(=C(-C))))
+C(=C(-C(=C(-C(=C)))))
+C1(=C(-C(=C(-C(=C1)))))

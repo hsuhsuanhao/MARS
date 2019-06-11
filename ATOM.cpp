@@ -217,6 +217,10 @@ void POOL::set_up() {
 	a[12].order[1]=a[12].order[2]=a[12].order[3] = 0;
 	a[12].nbond=5;
 	a[12].norder=1;
+	a[12].type=7;
+	a[12].rb=0.99;
+	a[12].bd[0]=1;
+	a[12].ang0=0.0;
 	a[12].atm="Cl";	
 
 	a[13].id = 13;

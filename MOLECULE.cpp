@@ -761,7 +761,7 @@ void MOLECULE::check_bnd(int aaa) {
         for (j=0;j<natom;j++) order[i][j]=connect[i][j];
     }
     k=0;
-    while (1) {
+    /*while (1) {
         for (i=0;i<natom;i++) {
             if (atm[i].nbnd > sum[i]) {
                 for (j=i+1;j<natom;j++) {
@@ -784,7 +784,25 @@ void MOLECULE::check_bnd(int aaa) {
         }
         k++;
         if (k==3) break;
+    }*/
+    for (i=0;i<natom;i++) {
+        while (1) {
+            if (atm[i].nbnd > sum[i]) {
+                for (j=i+1;j<natom;j++) {
+                    if ( atm[i].nbnd != sum[i] && connect[i][j] !=0 && atm[j].nbnd!=sum[j]) {
+                        if ((atm[j].nbnd-sum[j])>0) {
+                            order[i][j]+=1;
+                            sum[i]+=1;
+                            sum[j]+=1;
+                            order[j][i] = order[i][j];
+                        }
+                    }
+                }
+            }
+            if (atm[i].nbnd==sum[i]) break;
+        }
     }
+
     for (i=0;i<natom;i++) {
         for (j=0;j<natom;j++) {
             connect[i][j]=order[i][j];
@@ -810,7 +828,8 @@ void MOLECULE::check_bnd() {
         if (atm[i].name=="S" || atm[i].name=="N" || atm[i].name=="P" || atm[i].name=="O") {
             k=0;
             k=rd_nps(i);
-            if (k!=atm[i].nbnd) atm[i].nbnd=k;
+			if (k==-1) {}
+            else if (k!=atm[i].nbnd) atm[i].nbnd=k;
         }
     }
 
@@ -823,30 +842,47 @@ void MOLECULE::check_bnd() {
 		for (j=0;j<natom;j++) order[i][j]=connect[i][j];
 	}
 	k=0;
-	while (1) {
-		for (i=0;i<natom;i++) {
-			if (atm[i].nbnd > sum[i]) {
-				for (j=i+1;j<natom;j++) {
-					if ( atm[i].nbnd != sum[i] && connect[j][i] !=0 && atm[j].nbnd != 1) {
-						if (atm[j].name=="C" && sum[j]==2 && sum[i]==2 && atm[i].name=="C") {
-                            order[i][j]+=2;
-                            sum[i]+=2;
-                            sum[j]+=2;
+    /*while (1) {
+        for (i=0;i<natom;i++) {
+            if (atm[i].nbnd > sum[i]) {
+                for (j=i+1;j<natom;j++) {
+                    if ( atm[i].nbnd != sum[i] && connect[j][i] !=0 && atm[j].nbnd != 1) {
+                        if (atm[j].name=="C" && sum[j]==2 && sum[i]==2 && atm[i].name=="C") {
+                            order[i][j]+=(atm[j].nbnd-sum[j]);
+                            sum[i]+=(atm[j].nbnd-sum[j]);
+                            sum[j]+=(atm[j].nbnd-sum[j]);
                             order[j][i]=order[i][j];
                         }
-						else if ((atm[j].nbnd-sum[j])>0) {
-							order[i][j] += 1;
-							sum[i]+=1;
-							sum[j]+=1;
-							order[j][i] = order[i][j];
-						}
-					}
-				}
-			}
-		}
-		k++;
-		if (k==3) break;
-	}
+                        else if ((atm[j].nbnd-sum[j])>0) {
+                            order[i][j] += 1;
+                            sum[i]+=1;
+                            sum[j]+=1;
+                            order[j][i] = order[i][j];
+                        }
+                    }
+                }
+            }
+        }
+        k++;
+        if (k==3) break;
+    }*/
+    for (i=0;i<natom;i++) {
+        while (1) {
+            if (atm[i].nbnd > sum[i]) {
+                for (j=i+1;j<natom;j++) {
+                    if ( atm[i].nbnd != sum[i] && connect[i][j] !=0 && atm[j].nbnd!=sum[j]) {
+                        if ((atm[j].nbnd-sum[j])>0) {
+                            order[i][j]+=1;
+                            sum[i]+=1;
+                            sum[j]+=1;
+                            order[j][i] = order[i][j];
+                        }
+                    }
+                }
+            }
+            if (atm[i].nbnd==sum[i]) break;
+        }
+    }
 	for (i=0;i<natom;i++) {
 		for (j=0;j<natom;j++) {
 			connect[i][j]=order[i][j];
@@ -1443,6 +1479,7 @@ int MOLECULE::rd_nps(int a) {
 		ofstream out("molecule.log",ios::app);
 		out<<"Warning : you don't include the mol file of this molecule, "<<smiles<<". It might cause the error of ionic molecule."<<endl;
 		out.close();
+		return -1;
 	}
 	string tmp;
 	int i,j,k,l=0,s=0,m,n,p,q;

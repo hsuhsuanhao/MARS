@@ -650,7 +650,7 @@ void MOLECULE::reset() {
 
 void MOLECULE::init() {
 	int i=0,j=0,k=0;
-	char tmp;
+	string tmp;
 	double x,y,z;
 	smi2gjf();
 	if (atm!=NULL) delete [] atm;
@@ -1227,8 +1227,8 @@ void MOLECULE::wipe() {
 }
 void MOLECULE::init(int p) {
 	int i=0,j=0,k=0,n=0,s=0,q=0;
-	char *n_tmp=NULL;
-	string* trash=new string("a");
+	vector<string> n_tmp;
+	string trash;
 	MOLECULE tmp;
 	double **d_tmp=NULL;
 	double x,y,z;
@@ -1244,15 +1244,13 @@ void MOLECULE::init(int p) {
 	inf>>ws;
 	i=0;
 	while (!inf.eof()) {
-		inf>>*trash>>x>>y>>z>>ws;
+		inf>>trash>>x>>y>>z>>ws;
 		i++;
 	}
-	delete trash;
 	inf.close();
 	natom=i;
 	inf.open((smiles+".gjf").c_str());
 	atm=new DEATOM [natom];
-	n_tmp=new char [natom];
 	d_tmp=new double *[natom];
 	for (i=0;i<natom;i++) {
 		d_tmp[i]=new double [3];
@@ -1263,7 +1261,8 @@ void MOLECULE::init(int p) {
     inf>>ws;
 	k=0;
 	while (!inf.eof()) {
-			inf>>n_tmp[k]>>d_tmp[k][0]>>d_tmp[k][1]>>d_tmp[k][2];
+			inf>>trash>>d_tmp[k][0]>>d_tmp[k][1]>>d_tmp[k][2];
+			n_tmp.push_back(trash);
 			k++;
 			if (k==natom) break;
 	}
@@ -1271,7 +1270,7 @@ void MOLECULE::init(int p) {
    	delete temp;
 	k=0;
 	for (i=0;i<natom;i++) {
-		if (n_tmp[i]!='H') {
+		if (n_tmp[i]!="H") {
 			point[k]=i;
 			k++;
 		}
@@ -1318,7 +1317,7 @@ void MOLECULE::init(int p) {
 		}	
 
 		for (i=n;i>=0;i--) {
-			if (tmp.connect[i][n] != 0 && n_tmp[i] != 'H') {
+			if (tmp.connect[i][n] != 0 && n_tmp[i] != "H") {
 				for (j=0;j<k;j++) {
 					if (point[j]==i) {
 						s=point[j];
@@ -1364,7 +1363,7 @@ void MOLECULE::init(int p) {
 	tmp.wipe();
 	for (i=0;i<natom;i++) {
 		if (q>=natom) break;
-		if (n_tmp[i]=='H') {
+		if (n_tmp[i]=="H") {
 			atm[q].name=n_tmp[i];
 			for (j=0;j<3;j++) {
 				atm[q].x[j]=d_tmp[i][j];
@@ -1378,9 +1377,7 @@ void MOLECULE::init(int p) {
 		delete [] d_tmp[i];
 	}
 	delete [] d_tmp;
-	delete [] n_tmp;
 	d_tmp=NULL;
-	n_tmp=NULL;
 
 	dist = new double *[natom];
 	connect = new int *[natom];

@@ -221,7 +221,8 @@ void POOL::set_up() {
 	a[12].rb=0.99;
 	a[12].bd[0]=1;
 	a[12].ang0=0.0;
-	a[12].atm="Cl";	
+	a[12].atm="Cl";
+	a[12].index=3;	
 
 	a[13].id = 13;
     a[13].name="Br(-)";

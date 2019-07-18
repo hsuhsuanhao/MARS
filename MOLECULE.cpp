@@ -518,7 +518,7 @@ void MOLECULE::reset() {
 	int x;
 	int u;
 	int M;
-	int smindex;
+	int smindex,t[2],s[2];
 	clear();
 	for (i=0;i<Cindex.size();i++) {
 		b = Mindex.at(i);
@@ -563,88 +563,101 @@ void MOLECULE::reset() {
 		}
 	}
 	m=0;
-	for (i=0;i<Cyindex.size();i++) {
-		if (Cyindex.at(i)>m) m=Cyindex.at(i);
-	}
+    for (i=0;i<Cyindex.size();i++) {
+        if (Cyindex.at(i)>m) {
+            if (Cyindex.at(i)>10) {
+                t[0]=Cyindex.at(i)/10;
+                t[1]=Cyindex.at(i)%10;
+                if (t[0]>m && t[0]>t[1]) m=t[0];
+                else if (t[1]>t[0] && t[1]>m) m=t[1];
+            }
+            else m=Cyindex.at(i);
+        }
+    }
 	if (if_circle) {
-		int cyclic[m];
+		vector<int> cyclic;
+		cyclic.resize(m);
 		for (i=0;i<m;i++) cyclic[i]=0;
 		for (i=0;i<Mindex.size();i++) {
-			if (Cyindex.at(i)) cyclic[Cyindex.at(i)-1]++;
-		}
+            if (Cyindex.at(i))  {
+                if (Cyindex.at(i)>10) {
+                    j=Cyindex.at(i)/10;
+                    n=Cyindex.at(i)%10;
+                    cyclic.at(j-1)+=1;
+                    cyclic.at(n-1)+=1;
+                }
+                else cyclic.at(Cyindex.at(i)-1)+=1;
+            }
+        }
 		m=-1;
-		for (i=0;i<if_circle;i++) {
-			if (cyclic[i]>=2) {
-				x=cyclic[i]-2;
-				while (x) {
-					n=rand()%cyclic[i];
-					for (j=0;j<Mindex.size();j++) {
-						if (Cyindex.at(j)==(i+1)) m++;
-						if (m==n) {
-							Cyindex.at(j)=0;
-							cyclic[i]--;
-							x--;
-							break;
-						}
-					}
-				}
-				u=0;
-				for (j=0;j<Mindex.size();j++) {
-					for (n=j+1;n<Mindex.size();n++) {
-						if (Cyindex.at(j)==Cyindex.at(n) && Cyindex.at(j)==(i+1)) {
-							for (m=0;m<data.a[Mindex.at(j)].norder;m++) {
-								for (x=0;x<data.a[Mindex.at(n)].norder;x++) {
-									if (Bindex[j][m]==1 && Bindex[n][x]==1) {
-										Bindex[j][m]=0;
-										Bindex[n][x]=0;
-										u=1;
-										break;
-									}
-								}
-								if (u) break;
-							}
-							if (u==0) {
-								u=1;
-								Cyindex.at(j)=0;
-								Cyindex.at(n)=0;
-							}
-							if (u) break;
-						}
-						if (u) break;
-					}
-					if (u) break;
-				}
-			} else if (cyclic[i]==1) {
-				for (j=0;j<Mindex.size();j++) {
-					if (Cyindex.at(j)==(i+1)) {
-						Cyindex.at(j)=0;
-						break;
-					}
-				}
-			}
-		}
-	}
-	n=0;
-	for (i=0;i<Cyindex.size();i++) {
-		if (Cyindex.at(i)) {
-			for (j=0;j<Cyindex.size();j++) {
-				if (Cyindex.at(i)==Cyindex.at(j) && i!=j) {
-					n=0;
-					break;
-				}
-				else n=1;
-			}
-		}
-		if (n) Cyindex.at(i)=0;
-	}	
-	if (if_circle) {
-		m=0;
-		for (i=0;i<Cyindex.size();i++) {
-			if (Cyindex.at(i)>m) m=Cyindex.at(i);
-		}
-		if_circle=m;
-	}
-		
+		for (i=0;i<cyclic.size();i++) {
+            if (cyclic.at(i)==2) {
+                u=0;
+                for (j=0;j<Mindex.size();j++) {
+                    for (n=j+1;n<Mindex.size();n++) {
+                        if (Cyindex.at(j)>10) {
+                            t[0]=Cyindex.at(j)/10;
+                            t[1]=Cyindex.at(j)%10;
+                        }
+                        else {
+                            t[0]=t[1]=Cyindex.at(j);
+                        }
+                        if (Cyindex.at(n)>10) {
+                            s[0]=Cyindex.at(n)/10;
+                            s[1]=Cyindex.at(n)%10;
+                        }
+                        else {
+                            s[0]=s[1]=Cyindex.at(n);
+                        }
+                        if ( (s[0]==t[0] || s[0]==t[1] || s[1]==t[0] || s[1]==t[1]) && (s[0]==(i+1) || s[1]==(i+1))) {
+                            for (m=0;m<data.a[Mindex.at(j)].norder;m++) {
+                                for (x=0;x<data.a[Mindex.at(n)].norder;x++) {
+                                    if (Bindex[j].at(m)==1 && Bindex[n].at(x)==1) {
+                                        Bindex[j].at(m)=0;
+                                        Bindex[n].at(x)=0;
+                                        u=1;
+                                        break;
+                                    }
+                                }
+                                if (u) break;
+                            }
+                            if (u==0) {
+                                u=1;
+                                Cyindex.at(j)=0;
+                                Cyindex.at(n)=0;
+}
+                            if (u) break;
+                        }
+                        if (u) break;
+                    }
+                    if (u) break;
+                }
+            } else {
+                for (j=0;j<Mindex.size();j++) {
+                    if (Cyindex.at(j)==(i+1)) {
+                        Cyindex.at(j)=0;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    n=0;
+    if (if_circle) {
+        m=0;
+        for (i=0;i<Cyindex.size();i++) {
+            if (Cyindex.at(i)>m) {
+                if (Cyindex.at(i)>10) {
+                    j=Cyindex.at(i)/10;
+                    n=Cyindex.at(i)%10;
+                    if (j>n && j>m) m=j;
+                    else if (n>j&&n>m) m=n;
+                }
+                else m=Cyindex.at(i);
+            }
+        }
+        if_circle=m;
+    } 
 	return;
 }
 
@@ -1234,6 +1247,7 @@ int MOLECULE::combine(MOLECULE &B, int k,int p) {
 
 void MOLECULE::recode(int k) {
 	if (smiles=="") smiles=molesmi;
+	if (1) {
 	empty();
 	clear();
 	init(k);
@@ -1243,6 +1257,7 @@ void MOLECULE::recode(int k) {
 	read(smiles);
 	reset();
 	mds2smi();
+	}
 	return;
 }
 void MOLECULE::wipe() {
@@ -2286,17 +2301,29 @@ void MOLECULE::mds23d(ostream &outs) {
 	for (i=1;i<mm.size();i++) {
 		opt[0].table[i][Pindex.at(i)-1]=opt[0].table[Pindex.at(i)-1][i]=1;
 	}
-	if (if_circle) {
-    	for (i=0;i<Cyindex.size();i++) {
-    		if (Cyindex.at(i)) {
-        		for (j=i+1;j<Cyindex.size();j++) {
-            		if (Cyindex.at(i)==Cyindex.at(j)) {
-                		opt[0].table[i][j]=opt[0].table[j][i]=1;
-                	}
-            	}
-        	}
-		}
-	}
+    if (if_circle) {
+        int c1[2],c2[2];
+        for (i=0;i<Cyindex.size();i++) {
+            if (Cyindex.at(i)) {
+                if (Cyindex.at(i)>10) {
+                    c1[0]=Cyindex.at(i)/10;
+                    c1[1]=Cyindex.at(i)%10;
+                }
+                else c1[0]=c1[1]=Cyindex.at(i);
+                for (j=i+1;j<Cyindex.size();j++) {
+                    if (Cyindex.at(j)>10) {
+                        c2[0]=Cyindex.at(j)/10;
+                        c2[1]=Cyindex.at(j)%10;
+                    }
+                    else c2[0]=c2[1]=Cyindex.at(j);
+                    if (c1[0]==c2[0] || c1[0]==c2[1] || c1[1]==c2[0] || c1[1]==c2[1]) {
+                        opt[0].table[i][j]=opt[0].table[j][i]=1;
+                    }
+                }
+            }
+        }
+    }
+
 	int t=0;
 	for (i=0;i<mm.size();i++) {
 		k=0;

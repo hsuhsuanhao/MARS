@@ -774,31 +774,8 @@ void MOLECULE::check_bnd(int aaa) {
         for (j=0;j<natom;j++) order[i][j]=connect[i][j];
     }
     k=0;
-    /*while (1) {
-        for (i=0;i<natom;i++) {
-            if (atm[i].nbnd > sum[i]) {
-                for (j=i+1;j<natom;j++) {
-                    if ( atm[i].nbnd != sum[i] && connect[j][i] !=0 && atm[j].nbnd != 1) {
-                        if (atm[j].name=="C" && sum[j]==2 && sum[i]==2 && atm[i].name=="C") {
-                            order[i][j]+=(atm[j].nbnd-sum[j]);
-                            sum[i]+=(atm[j].nbnd-sum[j]);
-                            sum[j]+=(atm[j].nbnd-sum[j]);
-                            order[j][i]=order[i][j];
-                        }
-						else if ((atm[j].nbnd-sum[j])>0) {
-                            order[i][j] += 1;
-                            sum[i]+=1;
-                            sum[j]+=1;
-                            order[j][i] = order[i][j];
-                        }
-                    }
-                }
-            }
-        }
-        k++;
-        if (k==3) break;
-    }*/
     for (i=0;i<natom;i++) {
+		k=0;
         while (1) {
             if (atm[i].nbnd > sum[i]) {
                 for (j=i+1;j<natom;j++) {
@@ -811,8 +788,10 @@ void MOLECULE::check_bnd(int aaa) {
                         }
                     }
                 }
+				k++;
             }
             if (atm[i].nbnd==sum[i]) break;
+			else if (k>100) break;
         }
     }
 
@@ -825,8 +804,14 @@ void MOLECULE::check_bnd(int aaa) {
 }
 
 void MOLECULE::check_bnd() {
-	int i,j,k,sum[natom];
+	int i,j,k,sum[natom],chgg;
+	string tmp;
 	double r,tol=1.15;
+	ifstream inf((smiles+".gjf").c_str());
+	getline(inf,tmp);
+	inf>>ws;
+	inf>>chgg>>ws>>k>>ws;
+	inf.close();
 	for (i=0;i<natom;i++) {
 		connect[i][i]=0;
 	}
@@ -838,7 +823,7 @@ void MOLECULE::check_bnd() {
 		}
 	}
     for (i=0;i<natom;i++) {
-        if (atm[i].name=="S" || atm[i].name=="N" || atm[i].name=="P" || atm[i].name=="O") {
+        if (atm[i].name!="C"&&atm[i].name!="H"&&chgg) {
             k=0;
             k=rd_nps(i);
 			if (k==-1) {}
@@ -855,32 +840,9 @@ void MOLECULE::check_bnd() {
 		for (j=0;j<natom;j++) order[i][j]=connect[i][j];
 	}
 	k=0;
-    /*while (1) {
-        for (i=0;i<natom;i++) {
-            if (atm[i].nbnd > sum[i]) {
-                for (j=i+1;j<natom;j++) {
-                    if ( atm[i].nbnd != sum[i] && connect[j][i] !=0 && atm[j].nbnd != 1) {
-                        if (atm[j].name=="C" && sum[j]==2 && sum[i]==2 && atm[i].name=="C") {
-                            order[i][j]+=(atm[j].nbnd-sum[j]);
-                            sum[i]+=(atm[j].nbnd-sum[j]);
-                            sum[j]+=(atm[j].nbnd-sum[j]);
-                            order[j][i]=order[i][j];
-                        }
-                        else if ((atm[j].nbnd-sum[j])>0) {
-                            order[i][j] += 1;
-                            sum[i]+=1;
-                            sum[j]+=1;
-                            order[j][i] = order[i][j];
-                        }
-                    }
-                }
-            }
-        }
-        k++;
-        if (k==3) break;
-    }*/
     for (i=0;i<natom;i++) {
         while (1) {
+			k=0;
             if (atm[i].nbnd > sum[i]) {
                 for (j=i+1;j<natom;j++) {
                     if ( atm[i].nbnd != sum[i] && connect[i][j] !=0 && atm[j].nbnd!=sum[j]) {
@@ -892,8 +854,10 @@ void MOLECULE::check_bnd() {
                         }
                     }
                 }
+				k++;
             }
             if (atm[i].nbnd==sum[i]) break;
+			else if (k>100) break;
         }
     }
 	for (i=0;i<natom;i++) {
@@ -990,11 +954,35 @@ void MOLECULE::smi2cod() {
 			if (k.size()==2) Mindex.push_back(22);
 			if (k.size()==1) Mindex.push_back(23);
 		}
+		else if (atm[i].name=="F") {
+            for (j=0;j<natom;j++) {
+                if (connect[i][j] != 0) k.push_back(connect[i][j]);
+            }
+            if (k.size()) Mindex.push_back(11);
+            else Mindex.push_back(24);
+        }
+        else if (atm[i].name=="Cl") {
+            for (j=0;j<natom;j++) {
+                if (connect[i][j] != 0) k.push_back(connect[i][j]);
+            }
+            if (k.size()) Mindex.push_back(12);
+            else Mindex.push_back(25);
+        }
+        else if (atm[i].name=="Br") {
+            for (j=0;j<natom;j++) {
+                if (connect[i][j] != 0) k.push_back(connect[i][j]);
+            }
+            if (k.size()) Mindex.push_back(13);
+            else Mindex.push_back(26);
+        }
+        else if (atm[i].name=="I") {
+            for (j=0;j<natom;j++) {
+                if (connect[i][j] != 0) k.push_back(connect[i][j]);
+            }
+            if (k.size()) Mindex.push_back(14);
+            else Mindex.push_back(27);
+        }
 
-		else if (atm[i].name=="F") Mindex.push_back(11);
-		else if (atm[i].name=="Cl") Mindex.push_back(12);
-		else if (atm[i].name=="Br") Mindex.push_back(13);
-		else if (atm[i].name=="I") Mindex.push_back(14);
 		else if (atm[i].name=="S") {
 			for (j=0;j<natom;j++) {
 				if (connect[i][j] != 0) k.push_back(connect[i][j]);
@@ -1330,7 +1318,7 @@ void MOLECULE::init(int p) {
 	n=point[p];
 	atm[0].name=n_tmp[point[p]];
 	for (j=0;j<3;j++) atm[0].x[j]=d_tmp[point[p]][j];
-	if (atm[0].name=="N"||atm[0].name=="S"||atm[0].name=="P" || atm[0].name=="O") atm[0].nbnd=tmp.atm[point[p]].nbnd;
+	if (atm[0].name!="C"&&atm[0].name!="H") atm[0].nbnd=tmp.atm[point[p]].nbnd;
 	atm[0].find_r();
     point[p]=-1;
 	q=1;
@@ -1361,7 +1349,7 @@ void MOLECULE::init(int p) {
 					atm[q].name=n_tmp[s];
 					for (i=0;i<3;i++) atm[q].x[i]=d_tmp[s][i];
 					atm[q].find_r();
-					if (atm[q].name=="N"||atm[q].name=="S"||atm[q].name=="P" || atm[q].name=="O") atm[q].nbnd=tmp.atm[s].nbnd;
+					if (atm[q].name!="C"&&atm[q].name!="H") atm[q].nbnd=tmp.atm[s].nbnd;
 					q++;
 				}
 			}
@@ -1384,7 +1372,7 @@ void MOLECULE::init(int p) {
 				atm[q].name=n_tmp[s];
 				for (j=0;j<3;j++) atm[q].x[j]=d_tmp[s][j];
 				atm[q].find_r();
-				if (atm[q].name=="N"||atm[q].name=="S"||atm[q].name=="P") atm[q].nbnd=tmp.atm[s].nbnd;
+				if (atm[q].name!="H"&&atm[q].name!="C") atm[q].nbnd=tmp.atm[s].nbnd;
 				q++;
 				n=i;
 				break;
